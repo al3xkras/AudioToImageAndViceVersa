@@ -13,9 +13,9 @@ public class Main {
         path = System.getProperty("user.dir").replace('\\','/')+tmpPathPrefix;
     }
 
-    static File file = new File(path+"/orange.mp4");
-    static File file1 = new File(path+"/orange1.mp4");
-    static File out = new File(path+"/orange.png");
+    static File fileIn = new File(path+"/chris.mp3");
+    static File fileOut = new File(path+"/chris1.mp3");
+    static File imageOut = new File(path+"/image.png");
 
     public static void main(String[] args) throws IOException {
 
@@ -24,14 +24,14 @@ public class Main {
     }
 
     public static void test() throws IOException {
-        byte[] bytes = Files.readAllBytes(file.toPath());
+        byte[] bytes = Files.readAllBytes(fileIn.toPath());
         BufferedImage img = bytesToImage(bytes);
 
-        ImageIO.write(img,"png",out);
+        ImageIO.write(img,"png", imageOut);
 
-        BufferedImage imgRead = ImageIO.read(out);
+        BufferedImage imgRead = ImageIO.read(imageOut);
         byte[] bytesRead = imageToBytes(imgRead);
-        Files.write(file1.toPath(),bytesRead);
+        Files.write(fileOut.toPath(),bytesRead);
     }
 
     public static BufferedImage bytesToImage(byte[] bytes) {
