@@ -8,19 +8,20 @@ public class Main {
 
     private static final String tmpPathPrefix = "/tmp";
     private static final String path;
+    static String filename = "orig.zip";
+    static String convName = "conv_"+filename+".png";
+    static String decodeName = "decoded_"+filename;
 
     static {
         path = System.getProperty("user.dir").replace('\\','/')+tmpPathPrefix;
     }
 
-    static File fileIn = new File(path+"/chris.mp3");
-    static File fileOut = new File(path+"/chris1.mp3");
-    static File imageOut = new File(path+"/image.png");
+    static File fileIn = new File(path+'/'+filename);
+    static File fileOut = new File(path+'/'+decodeName);
+    static File imageOut = new File(path+'/'+convName);
 
     public static void main(String[] args) throws IOException {
-
         test();
-
     }
 
     public static void test() throws IOException {
@@ -34,6 +35,11 @@ public class Main {
         Files.write(fileOut.toPath(),bytesRead);
     }
 
+    public static void testImageToFile() throws IOException {
+        BufferedImage imgRead = ImageIO.read(imageOut);
+        byte[] bytesRead = imageToBytes(imgRead);
+        Files.write(fileOut.toPath(),bytesRead);
+    }
     public static BufferedImage bytesToImage(byte[] bytes) {
         int width;
         //width=height
@@ -82,11 +88,15 @@ public class Main {
 
         System.out.println("Fill empty byte: "+fillEmptyByte);
 
+        long empty = 0L;
+
         if (k==1){
             rgb[1]=fillEmptyByte;
             rgb[2]=fillEmptyByte;
+            empty+=2;
         } else if (k==2){
             rgb[2]=fillEmptyByte;
+            empty++;
         }
 
         if (k!=0) {
@@ -100,18 +110,18 @@ public class Main {
             i++;
         }
 
-        long empty = 0L;
+
         while(i<width){
             while(j<width){
                 img.setRGB(i,j,fillEmpty.getRGB());
-                empty++;
+                empty+=3;
                 j++;
             }
             j=0;
             i++;
         }
-        System.out.println("Empty: "+empty*3);
-        System.out.println("Real last empty index: "+(bytes.length-empty*3));
+        System.out.println("Empty: "+empty);
+        System.out.println("Real last empty index: "+(bytes.length-empty));
         System.out.println("calculated last empty index: "+(bytes.length-getSkipBytes(img)));
         return img;
     }
@@ -120,31 +130,33 @@ public class Main {
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
 
-        byte fillEmpty = (byte) new Color(bufferedImage.getRGB(width-1,height-1)).getRed();
+        byte fillEmpty = (byte) new Color(bufferedImage.getRGB(width-1,height-1)).getBlue();
         int skip = 0;
         for (int i = width-1; i>=0; i--){
             for (int j = height-1; j>=0;j--){
                 Color c = new Color(bufferedImage.getRGB(i,j));
-                if (c.getBlue()!=fillEmpty) break;
-                if (c.getGreen()!=fillEmpty) break;
-                if (c.getRed()!=fillEmpty) break;
-                skip+=3;
+                if (c.getBlue()!=fillEmpty) return skip-3;
+                skip++;
+                if (c.getGreen()!=fillEmpty) return skip-3;
+                skip++;
+                if (c.getRed()!=fillEmpty) return skip-3;
+                skip++;
             }
         }
 
-        System.out.println("skip: "+skip);
-
-        return skip+1;
+        return skip-3;
     }
 
     public static byte[] imageToBytes(BufferedImage bufferedImage){
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
 
-        byte fillEmpty = (byte) new Color(bufferedImage.getRGB(width-1,height-1)).getRed();
+        byte fillEmpty = (byte) new Color(bufferedImage.getRGB(width-1,height-1)).getBlue();
         System.out.println(fillEmpty);
         int skip = getSkipBytes(bufferedImage);
-        int total = width*height*3-2*skip;
+        System.out.println("skip: "+skip);
+        //TODO
+        int total = width*height*3-skip;
         System.out.println("total "+total);
         byte[] bytes = new byte[total];
         int n = 0;
