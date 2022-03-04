@@ -6,25 +6,29 @@ import java.nio.file.Files;
 
 public class Main {
 
+    private static final boolean debug = true;
+
     private static final String tmpPathPrefix = "/tmp";
     private static final String path;
-    static String filename = "orig.zip";
-    static String convName = "conv_"+filename+".png";
-    static String decodeName = "decoded_"+filename;
+
+    private static final String filename = "teorver.pdf";
+
+    private static final String convName = "conv_"+filename+".png";
+    private static final String decodeName = "decoded_"+filename;
 
     static {
         path = System.getProperty("user.dir").replace('\\','/')+tmpPathPrefix;
     }
 
-    static File fileIn = new File(path+'/'+filename);
-    static File fileOut = new File(path+'/'+decodeName);
-    static File imageOut = new File(path+'/'+convName);
+    private static final File fileIn = new File(path+'/'+filename);
+    private static final File fileOut = new File(path+'/'+decodeName);
+    private static final File imageOut = new File(path+'/'+convName);
 
     public static void main(String[] args) throws IOException {
-        test();
+        run();
     }
 
-    public static void test() throws IOException {
+    public static void run() throws IOException {
         byte[] bytes = Files.readAllBytes(fileIn.toPath());
         BufferedImage img = bytesToImage(bytes);
 
@@ -35,14 +39,8 @@ public class Main {
         Files.write(fileOut.toPath(),bytesRead);
     }
 
-    public static void testImageToFile() throws IOException {
-        BufferedImage imgRead = ImageIO.read(imageOut);
-        byte[] bytesRead = imageToBytes(imgRead);
-        Files.write(fileOut.toPath(),bytesRead);
-    }
     public static BufferedImage bytesToImage(byte[] bytes) {
-        int width;
-        //width=height
+        int width; //width=height
         int totalBytes;
         int bytesInPixel = 3; //rgb
         int pixels;
@@ -86,7 +84,7 @@ public class Main {
             fillEmptyByte = 1;
         }
 
-        System.out.println("Fill empty byte: "+fillEmptyByte);
+        log("Empty byte: "+fillEmptyByte);
 
         long empty = 0L;
 
@@ -120,13 +118,13 @@ public class Main {
             j=0;
             i++;
         }
-        System.out.println("Empty: "+empty);
-        System.out.println("Real last empty index: "+(bytes.length-empty));
-        System.out.println("calculated last empty index: "+(bytes.length-getSkipBytes(img)));
+        log("Real empty bytes count: "+empty);
+        log("Real informative bytes count: "+(bytes.length-empty));
+        log("Calculated informative bytes count: "+(bytes.length- getBytesToSkip(img)));
         return img;
     }
 
-    private static int getSkipBytes(BufferedImage bufferedImage){
+    private static int getBytesToSkip(BufferedImage bufferedImage){
         int width = bufferedImage.getWidth();
         int height = bufferedImage.getHeight();
 
@@ -152,12 +150,11 @@ public class Main {
         int height = bufferedImage.getHeight();
 
         byte fillEmpty = (byte) new Color(bufferedImage.getRGB(width-1,height-1)).getBlue();
-        System.out.println(fillEmpty);
-        int skip = getSkipBytes(bufferedImage);
-        System.out.println("skip: "+skip);
-        //TODO
+        log(fillEmpty);
+        int skip = getBytesToSkip(bufferedImage);
+        log("Bytes to skip: "+skip);
         int total = width*height*3-skip;
-        System.out.println("total "+total);
+        log("Informative bytes in total: "+total);
         byte[] bytes = new byte[total];
         int n = 0;
         for (int i = 0; i<width; i++){
@@ -182,5 +179,9 @@ public class Main {
         return bytes;
     }
 
+    private static void log(Object o){
+        if (!debug) return;
+        System.out.println(o);
+    }
 
 }
