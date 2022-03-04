@@ -3,7 +3,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Arrays;
 
 public class Main {
 
@@ -14,21 +13,17 @@ public class Main {
         path = System.getProperty("user.dir").replace('\\','/')+tmpPathPrefix;
     }
 
+    static File file = new File(path+"/orange.mp4");
+    static File file1 = new File(path+"/orange1.mp4");
+    static File out = new File(path+"/orange.png");
+
     public static void main(String[] args) throws IOException {
 
-        //byte[] bytes = new byte[]{120,3,-4,2,3,-3,-1,0,-1,0,0,2,0,0,0,0,0};
-        //BufferedImage image = bytesToImage(bytes);
-        //byte[] bytes1 = imageToBytes(image);
-
-        testFileToImage();
+        test();
 
     }
 
-    public static void testFileToImage() throws IOException {
-        File file = new File(path+"/orange.mp4");
-        File file1 = new File(path+"/orange1.mp4");
-        File out = new File(path+"/orange.png");
-
+    public static void test() throws IOException {
         byte[] bytes = Files.readAllBytes(file.toPath());
         BufferedImage img = bytesToImage(bytes);
 
@@ -37,30 +32,6 @@ public class Main {
         BufferedImage imgRead = ImageIO.read(out);
         byte[] bytesRead = imageToBytes(imgRead);
         Files.write(file1.toPath(),bytesRead);
-    }
-
-    public static void testImageToFile() throws IOException {
-        File file = new File(path+"/chris.mp3");
-        File out = new File(path+"/chris.png");
-
-        BufferedImage imgRead = ImageIO.read(out);
-        byte[] bytesRead = imageToBytes(imgRead);
-        Files.write(file.toPath(),bytesRead);
-    }
-
-    public static void test() throws IOException {
-        File file = new File(path+"/chris.m");
-        File out = new File(path+"/chris.png");
-        File fileRead = new File(path+"/chris.mp3");
-
-
-        BufferedImage imgRead = ImageIO.read(out);
-
-        byte[] bytesRead = imageToBytes(imgRead);
-
-        BufferedImage image = bytesToImage(bytesRead);
-
-        System.out.println(image==imgRead);
     }
 
     public static BufferedImage bytesToImage(byte[] bytes) {
